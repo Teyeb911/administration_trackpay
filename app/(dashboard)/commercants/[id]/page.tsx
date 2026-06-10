@@ -224,7 +224,6 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
                       <p className="text-2xl font-bold text-gray-900">
                         {formatMontant(parseFloat(c.wallet.balance))}
                       </p>
-                      <p className="text-xs text-gray-500">{c.wallet.currency}</p>
                     </div>
                     <Badge variant="secondary" className={c.wallet.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
                       {c.wallet.is_active ? 'Actif' : 'Bloqué'}

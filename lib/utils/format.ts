@@ -1,9 +1,15 @@
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  MRU: 'MRU',
+  DZD: 'DA',
+}
+
 export function formatMontant(montant: number, currency = 'MRU'): string {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency,
+  const n = new Intl.NumberFormat('fr-FR', {
     minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(montant)
+  const symbol = CURRENCY_SYMBOLS[currency] ?? currency
+  return `${n} ${symbol}`
 }
 
 export function formatDate(dateStr: string): string {
