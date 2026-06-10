@@ -46,10 +46,10 @@ export function StatsCards({ stats }: { stats: DashboardData }) {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
-              <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">{value}</p>
             </div>
-            <div className={`rounded-xl ${bg} p-3`}>
-              <Icon className={`h-5 w-5 ${iconColor}`} />
+            <div className={`rounded-xl ${bg} p-2.5 sm:p-3`}>
+              <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${iconColor}`} />
             </div>
           </div>
         </div>

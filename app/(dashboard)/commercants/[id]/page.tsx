@@ -79,7 +79,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="flex flex-col">
       <Header title="Détail marchand" />
-      <div className="flex-1 space-y-6 p-6">
+      <div className="flex-1 space-y-4 sm:space-y-6 p-4 sm:p-6">
         <Link
           href="/commercants"
           className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
@@ -91,7 +91,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
         {isLoading && (
           <div className="space-y-4">
             <Skeleton className="h-40 w-full rounded-xl" />
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Skeleton className="h-32 rounded-xl" />
               <Skeleton className="h-32 rounded-xl" />
               <Skeleton className="h-32 rounded-xl" />
@@ -105,7 +105,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
           <div className="space-y-6">
             {/* Infos principales + actions */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 rounded-xl border bg-white p-6 space-y-5">
+              <div className="lg:col-span-2 rounded-xl border bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">{c.nom || 'Sans nom'}</h2>
@@ -179,7 +179,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
               </div>
 
               {/* Statuts */}
-              <div className="rounded-xl border bg-white p-6 space-y-4">
+              <div className="rounded-xl border bg-white p-4 sm:p-6 space-y-4">
                 <h3 className="font-semibold text-gray-700 text-sm">Statuts</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -211,7 +211,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
             {/* Wallet + Abonnement + KYC */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Wallet */}
-              <div className="rounded-xl border bg-white p-6 space-y-4">
+              <div className="rounded-xl border bg-white p-4 sm:p-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="rounded-lg bg-green-50 p-2">
                     <Wallet className="h-4 w-4 text-green-600" />
@@ -236,7 +236,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
               </div>
 
               {/* Abonnement */}
-              <div className="rounded-xl border bg-white p-6 space-y-4">
+              <div className="rounded-xl border bg-white p-4 sm:p-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="rounded-lg bg-blue-50 p-2">
                     <CreditCard className="h-4 w-4 text-blue-600" />
@@ -268,7 +268,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
               </div>
 
               {/* KYC détail */}
-              <div className="rounded-xl border bg-white p-6 space-y-4">
+              <div className="rounded-xl border bg-white p-4 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={`rounded-lg p-2 ${c.kyc?.status === 'verified' ? 'bg-green-50' : 'bg-orange-50'}`}>

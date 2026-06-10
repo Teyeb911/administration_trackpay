@@ -1,4 +1,4 @@
-import { Header } from '@/components/layout/header'
+﻿import { Header } from '@/components/layout/header'
 import { TransactionsTable } from '@/components/transactions/transactions-table'
 
 export default function TransactionsPage() {
@@ -8,7 +8,7 @@ export default function TransactionsPage() {
         title="Transactions"
         subtitle="Historique complet de toutes les transactions"
       />
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-4 sm:p-6">
         <TransactionsTable />
       </div>
     </div>

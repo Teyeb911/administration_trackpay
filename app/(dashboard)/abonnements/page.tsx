@@ -29,7 +29,7 @@ export default function AbonnementsPage() {
   return (
     <div className="flex flex-col">
       <Header title="Abonnements" subtitle="Plans actifs des marchands" />
-      <div className="flex-1 space-y-4 p-6">
+      <div className="flex-1 space-y-4 p-4 sm:p-6">
         {isLoading && <TableSkeleton />}
         {isError && <ErrorState message="Impossible de charger les abonnements." onRetry={refetch} />}
 
@@ -39,10 +39,10 @@ export default function AbonnementsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Marchand</th>
+                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 sm:px-5">Marchand</th>
                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 hidden md:table-cell">Email</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Plan</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Statut</th>
+                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 sm:px-5">Plan</th>
+                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 sm:px-5">Statut</th>
                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 hidden lg:table-cell">Début</th>
                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 hidden lg:table-cell">Expiration</th>
                     <th className="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-400 hidden xl:table-cell">Auto</th>
@@ -62,21 +62,21 @@ export default function AbonnementsPage() {
                       const statut = statutConfig[ab.statut] ?? { label: ab.statut, dot: 'bg-slate-400', className: 'border-slate-200 bg-slate-100 text-slate-600' }
                       return (
                         <tr key={ab.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="px-5 py-3.5">
-                            <div className="flex items-center gap-3">
+                          <td className="px-4 py-3.5 sm:px-5">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
                                 {(ab.commercant_nom ?? ab.commercant_email ?? '?')[0].toUpperCase()}
                               </div>
-                              <span className="font-medium text-slate-800">{ab.commercant_nom}</span>
+                              <span className="font-medium text-slate-800 truncate max-w-[80px] sm:max-w-none">{ab.commercant_nom}</span>
                             </div>
                           </td>
                           <td className="px-5 py-3.5 text-slate-500 hidden md:table-cell">{ab.commercant_email}</td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-4 py-3.5 sm:px-5">
                             <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold', plan.className)}>
                               {plan.label}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-4 py-3.5 sm:px-5">
                             <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium', statut.className)}>
                               <span className={cn('h-1.5 w-1.5 rounded-full', statut.dot)} />
                               {statut.label}

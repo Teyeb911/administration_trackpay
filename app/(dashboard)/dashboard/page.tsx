@@ -18,7 +18,7 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-0">
       <Header title="Dashboard" subtitle="Vue d'ensemble de la plateforme TrackPay" />
 
-      <div className="flex-1 space-y-6 p-6 overflow-y-auto">
+      <div className="flex-1 space-y-4 p-4 sm:space-y-6 sm:p-6 overflow-y-auto">
         {/* Stats */}
         {isLoading && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

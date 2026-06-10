@@ -4,11 +4,12 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, ArrowLeftRight,
-  CreditCard, ShieldCheck, LogOut, Zap,
+  CreditCard, ShieldCheck, LogOut, Zap, X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { useAuthStore } from '@/lib/store/auth.store'
 import { logout } from '@/lib/api/auth.api'
+import { useSidebar } from '@/lib/context/sidebar-context'
 
 const navItems = [
   { href: '/dashboard',    label: 'Dashboard',     icon: LayoutDashboard },
@@ -22,6 +23,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const { user, refreshToken, logout: clearAuth } = useAuthStore()
   const router = useRouter()
+  const { open, close } = useSidebar()
 
   const handleLogout = async () => {
     try { if (refreshToken) await logout(refreshToken) } finally {
@@ -31,23 +33,40 @@ export function Sidebar() {
     }
   }
 
+  const handleNavClick = () => {
+    close()
+  }
+
   const initials = user?.nom
     ? user.nom.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'AD'
 
   return (
-    <aside className="flex h-screen w-60 flex-col bg-slate-900 text-white">
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-3 px-5 border-b border-slate-800">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 shadow-lg shadow-indigo-500/30">
-          <Zap className="h-4 w-4 text-white" />
+    <aside className={cn(
+      'flex h-screen w-64 flex-col bg-slate-900 text-white transition-transform duration-300 ease-in-out',
+      'fixed inset-y-0 left-0 z-50',
+      'lg:static lg:translate-x-0',
+      open ? 'translate-x-0' : '-translate-x-full',
+    )}>
+      {/* Logo + bouton fermer mobile */}
+      <div className="flex h-16 items-center justify-between px-5 border-b border-slate-800">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 shadow-lg shadow-indigo-500/30">
+            <Zap className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <span className="text-sm font-bold tracking-tight">TrackPay</span>
+            <span className="ml-2 rounded-md bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-300 uppercase tracking-wider">
+              Admin
+            </span>
+          </div>
         </div>
-        <div>
-          <span className="text-sm font-bold tracking-tight">TrackPay</span>
-          <span className="ml-2 rounded-md bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-300 uppercase tracking-wider">
-            Admin
-          </span>
-        </div>
+        <button
+          onClick={close}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
       {/* Nav */}
@@ -61,6 +80,7 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              onClick={handleNavClick}
               className={cn(
                 'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
                 active
