@@ -48,7 +48,11 @@ export default function KycPage() {
 
   const handleValider = (userId: number, nom: string) => {
     valider(userId, {
-      onSuccess: () => toast.success(`KYC validé pour ${nom}.`),
+      onSuccess: () => {
+        toast.success(`KYC validé pour ${nom}.`)
+        setFilter('verified')
+        setPage(1)
+      },
       onError: () => toast.error('Impossible de valider ce KYC.'),
     })
   }
