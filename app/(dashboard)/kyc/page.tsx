@@ -8,6 +8,7 @@ import { ErrorState } from '@/components/shared/error-state'
 import { Pagination } from '@/components/shared/pagination'
 import { useCommercants } from '@/lib/hooks/use-commercants'
 import { useValiderKyc } from '@/lib/hooks/use-kyc'
+import { resolveKycStatus } from '@/lib/types/user.types'
 import { formatDateShort } from '@/lib/utils/format'
 import { ShieldCheck, ShieldAlert, ShieldX, Eye, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -40,9 +41,9 @@ export default function KycPage() {
   const { mutate: valider, isPending: validating } = useValiderKyc()
 
   const counts = {
-    pending:  allData.data?.results.filter((c) => c.kyc_status === 'pending').length ?? 0,
-    verified: allData.data?.results.filter((c) => c.kyc_status === 'verified').length ?? 0,
-    failed:   allData.data?.results.filter((c) => c.kyc_status === 'failed').length ?? 0,
+    pending:  allData.data?.results.filter((c) => resolveKycStatus(c) === 'pending').length ?? 0,
+    verified: allData.data?.results.filter((c) => resolveKycStatus(c) === 'verified').length ?? 0,
+    failed:   allData.data?.results.filter((c) => resolveKycStatus(c) === 'failed').length ?? 0,
   }
 
   const handleValider = (userId: number, nom: string) => {
@@ -122,8 +123,8 @@ export default function KycPage() {
                         <td className="px-5 py-3.5 text-slate-500 hidden md:table-cell">{c.email}</td>
                         <td className="px-5 py-3.5 text-slate-400 text-xs hidden lg:table-cell">{formatDateShort(c.created_at)}</td>
                         <td className="px-5 py-3.5">
-                          <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium', kycBadge[c.kyc_status] ?? kycBadge.pending)}>
-                            {c.kyc_status === 'verified' ? 'Vérifié' : c.kyc_status === 'failed' ? 'Échoué' : 'En attente'}
+                          <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium', kycBadge[resolveKycStatus(c)])}>
+                            {resolveKycStatus(c) === 'verified' ? 'Vérifié' : resolveKycStatus(c) === 'failed' ? 'Échoué' : 'En attente'}
                           </span>
                         </td>
                         <td className="px-5 py-3.5">
@@ -137,7 +138,7 @@ export default function KycPage() {
                         </td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {c.kyc_status === 'pending' && (
+                            {resolveKycStatus(c) === 'pending' && (
                               <button
                                 onClick={() => handleValider(c.id, c.nom)}
                                 disabled={validating}
