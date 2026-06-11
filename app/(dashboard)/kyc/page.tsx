@@ -7,10 +7,10 @@ import { TableSkeleton } from '@/components/shared/loading-skeleton'
 import { ErrorState } from '@/components/shared/error-state'
 import { Pagination } from '@/components/shared/pagination'
 import { useCommercants } from '@/lib/hooks/use-commercants'
-import { useValiderKyc } from '@/lib/hooks/use-kyc'
+import { useValiderKyc, useRejeterKyc } from '@/lib/hooks/use-kyc'
 import { resolveKycStatus } from '@/lib/types/user.types'
 import { formatDateShort } from '@/lib/utils/format'
-import { ShieldCheck, ShieldAlert, ShieldX, Eye, CheckCircle2 } from 'lucide-react'
+import { ShieldCheck, ShieldAlert, ShieldX, Eye, CheckCircle2, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils/cn'
 
@@ -39,6 +39,7 @@ export default function KycPage() {
   })
   const allData = useCommercants({})
   const { mutate: valider, isPending: validating } = useValiderKyc()
+  const { mutate: rejeter, isPending: rejecting } = useRejeterKyc()
 
   const counts = {
     pending:  allData.data?.results.filter((c) => resolveKycStatus(c) === 'pending').length ?? 0,
@@ -54,6 +55,17 @@ export default function KycPage() {
         setPage(1)
       },
       onError: () => toast.error('Impossible de valider ce KYC.'),
+    })
+  }
+
+  const handleRejeter = (userId: number, nom: string) => {
+    rejeter(userId, {
+      onSuccess: () => {
+        toast.success(`KYC rejeté pour ${nom}.`)
+        setFilter('failed')
+        setPage(1)
+      },
+      onError: () => toast.error('Impossible de rejeter ce KYC.'),
     })
   }
 
@@ -114,54 +126,87 @@ export default function KycPage() {
                       </td>
                     </tr>
                   ) : (
-                    data.results.map((c) => (
-                      <tr key={c.id} className="group hover:bg-slate-50/60 transition-colors">
-                        <td className="px-4 py-3.5 sm:px-5">
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
-                              {(c.nom || c.email)[0].toUpperCase()}
+                    data.results.map((c) => {
+                      const kycStatus = resolveKycStatus(c)
+                      return (
+                        <tr key={c.id} className="group hover:bg-slate-50/60 transition-colors">
+                          <td className="px-4 py-3.5 sm:px-5">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
+                                {(c.nom || c.email)[0].toUpperCase()}
+                              </div>
+                              <span className="font-medium text-slate-800 truncate max-w-[100px] sm:max-w-none">{c.nom || '—'}</span>
                             </div>
-                            <span className="font-medium text-slate-800 truncate max-w-[100px] sm:max-w-none">{c.nom || '—'}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3.5 text-slate-500 hidden md:table-cell">{c.email}</td>
-                        <td className="px-5 py-3.5 text-slate-400 text-xs hidden lg:table-cell">{formatDateShort(c.created_at)}</td>
-                        <td className="px-4 py-3.5 sm:px-5">
-                          <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium', kycBadge[resolveKycStatus(c)])}>
-                            {resolveKycStatus(c) === 'verified' ? 'Vérifié' : resolveKycStatus(c) === 'failed' ? 'Échoué' : 'En attente'}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 hidden sm:table-cell">
-                          <span className={cn(
-                            'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium',
-                            c.is_active ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-red-100 bg-red-50 text-red-600'
-                          )}>
-                            <span className={cn('h-1.5 w-1.5 rounded-full', c.is_active ? 'bg-emerald-500' : 'bg-red-500')} />
-                            {c.is_active ? 'Actif' : 'Suspendu'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 sm:px-5">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {resolveKycStatus(c) === 'pending' && (
-                              <button
-                                onClick={() => handleValider(c.id, c.nom)}
-                                disabled={validating}
-                                className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-2 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 sm:px-3"
+                          </td>
+                          <td className="px-5 py-3.5 text-slate-500 hidden md:table-cell">{c.email}</td>
+                          <td className="px-5 py-3.5 text-slate-400 text-xs hidden lg:table-cell">{formatDateShort(c.created_at)}</td>
+                          <td className="px-4 py-3.5 sm:px-5">
+                            <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium', kycBadge[kycStatus])}>
+                              {kycStatus === 'verified' ? 'Vérifié' : kycStatus === 'failed' ? 'Échoué' : 'En attente'}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 hidden sm:table-cell">
+                            <span className={cn(
+                              'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium',
+                              c.is_active ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-red-100 bg-red-50 text-red-600'
+                            )}>
+                              <span className={cn('h-1.5 w-1.5 rounded-full', c.is_active ? 'bg-emerald-500' : 'bg-red-500')} />
+                              {c.is_active ? 'Actif' : 'Suspendu'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 sm:px-5">
+                            <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {kycStatus === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={() => handleValider(c.id, c.nom)}
+                                    disabled={validating || rejecting}
+                                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-2 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 sm:px-3"
+                                  >
+                                    <CheckCircle2 className="h-3.5 w-3.5" />
+                                    <span className="hidden sm:inline">Valider</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleRejeter(c.id, c.nom)}
+                                    disabled={validating || rejecting}
+                                    className="flex items-center gap-1.5 rounded-lg bg-red-600 px-2 py-1.5 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50 sm:px-3"
+                                  >
+                                    <XCircle className="h-3.5 w-3.5" />
+                                    <span className="hidden sm:inline">Rejeter</span>
+                                  </button>
+                                </>
+                              )}
+                              {kycStatus === 'verified' && (
+                                <button
+                                  onClick={() => handleRejeter(c.id, c.nom)}
+                                  disabled={validating || rejecting}
+                                  className="flex items-center gap-1.5 rounded-lg border border-red-200 px-2 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50 sm:px-3"
+                                >
+                                  <XCircle className="h-3.5 w-3.5" />
+                                  <span className="hidden sm:inline">Invalider</span>
+                                </button>
+                              )}
+                              {kycStatus === 'failed' && (
+                                <button
+                                  onClick={() => handleValider(c.id, c.nom)}
+                                  disabled={validating || rejecting}
+                                  className="flex items-center gap-1.5 rounded-lg border border-emerald-200 px-2 py-1.5 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 disabled:opacity-50 sm:px-3"
+                                >
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                  <span className="hidden sm:inline">Valider</span>
+                                </button>
+                              )}
+                              <Link
+                                href={`/commercants/${c.id}`}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
                               >
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                <span className="hidden sm:inline">Valider</span>
-                              </button>
-                            )}
-                            <Link
-                              href={`/commercants/${c.id}`}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
                   )}
                 </tbody>
               </table>

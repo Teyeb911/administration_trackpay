@@ -7,7 +7,7 @@ import { Header } from '@/components/layout/header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCommercantDetail, useSuspendreCommercant, useActiverCommercant, useDeleteCommercant } from '@/lib/hooks/use-commercants'
-import { useValiderKyc } from '@/lib/hooks/use-kyc'
+import { useValiderKyc, useRejeterKyc } from '@/lib/hooks/use-kyc'
 import { EditCommercantModal } from '@/components/commercants/edit-commercant-modal'
 import { ErrorState } from '@/components/shared/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -15,7 +15,7 @@ import { formatDateShort, formatMontant } from '@/lib/utils/format'
 import {
   ArrowLeft, Mail, Phone, MapPin, Calendar,
   Wallet, CreditCard, ShieldCheck, ShieldX,
-  UserX, UserCheck, Trash2, AlertTriangle, Pencil,
+  UserX, UserCheck, Trash2, AlertTriangle, Pencil, XCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -42,6 +42,7 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
   const { mutate: activer, isPending: activating } = useActiverCommercant()
   const { mutate: supprimer, isPending: deleting } = useDeleteCommercant()
   const { mutate: validerKyc, isPending: validatingKyc } = useValiderKyc()
+  const { mutate: rejeterKyc, isPending: rejectingKyc } = useRejeterKyc()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -65,7 +66,16 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
     if (!confirmDelete) { setConfirmDelete(true); return }
     supprimer(numId, {
       onSuccess: () => { toast.success('Marchand supprimé.'); router.push('/commercants') },
-      onError: () => { toast.error('Impossible de supprimer ce marchand.'); setConfirmDelete(false) },
+      onError: (err: unknown) => {
+        const axiosErr = err as { response?: { status?: number; data?: unknown } }
+        const status = axiosErr?.response?.status
+        const data = axiosErr?.response?.data as Record<string, unknown> | undefined
+        const msg = status === 500
+          ? 'Erreur serveur : le compte a probablement des données liées (wallet, transactions…). Contactez l\'administrateur système.'
+          : (data?.detail ?? data?.message ?? data?.error ?? 'Impossible de supprimer ce marchand.') as string
+        toast.error(msg)
+        setConfirmDelete(false)
+      },
     })
   }
 
@@ -73,6 +83,13 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
     validerKyc(numId, {
       onSuccess: () => toast.success('KYC validé.'),
       onError: () => toast.error('Impossible de valider le KYC.'),
+    })
+  }
+
+  const handleRejeterKyc = () => {
+    rejeterKyc(numId, {
+      onSuccess: () => toast.success('KYC rejeté.'),
+      onError: () => toast.error('Impossible de rejeter le KYC.'),
     })
   }
 
@@ -277,17 +294,31 @@ export default function CommercantDetailPage({ params }: { params: Promise<{ id:
                     </div>
                     <h3 className="font-semibold text-gray-700 text-sm">KYC</h3>
                   </div>
-                  {c.kyc?.status === 'pending' && (
-                    <Button
-                      size="sm"
-                      className="h-7 text-xs bg-green-600 hover:bg-green-700"
-                      onClick={handleValiderKyc}
-                      disabled={validatingKyc}
-                    >
-                      <ShieldCheck className="h-3 w-3 mr-1" />
-                      Valider
-                    </Button>
-                  )}
+                  <div className="flex gap-1.5">
+                    {(c.kyc?.status === 'pending' || c.kyc?.status === 'failed') && (
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs bg-green-600 hover:bg-green-700"
+                        onClick={handleValiderKyc}
+                        disabled={validatingKyc || rejectingKyc}
+                      >
+                        <ShieldCheck className="h-3 w-3 mr-1" />
+                        Valider
+                      </Button>
+                    )}
+                    {(c.kyc?.status === 'pending' || c.kyc?.status === 'verified') && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50"
+                        onClick={handleRejeterKyc}
+                        disabled={validatingKyc || rejectingKyc}
+                      >
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Rejeter
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 {c.kyc ? (
                   <div className="space-y-1.5 text-sm">
