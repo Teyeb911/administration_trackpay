@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getPartnerPaymentEndpoint } from "@/lib/partner-portal/api"
 
 const jsExample = `const response = await fetch("https://trackpay.mr/api/payments/create/", {
   method: "POST",
@@ -37,6 +38,12 @@ payment_url = response.json()["payment_url"]`
 
 export default function PartnerDocsPage() {
   const [language, setLanguage] = useState<"python" | "javascript">("python")
+  const paymentEndpoint = getPartnerPaymentEndpoint()
+  const paymentPageExample = paymentEndpoint.replace("/api/payments/create/", "/pay/xxx")
+  const selectedExample = (language === "python" ? pythonExample : jsExample).replaceAll(
+    "https://trackpay.mr/api/payments/create/",
+    paymentEndpoint
+  )
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -57,7 +64,7 @@ export default function PartnerDocsPage() {
           <section className="space-y-3">
             <Step title="ÉTAPE 2 — Créer un paiement" body="Envoyez une requête POST avec votre clé API." />
             <pre className="overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm text-zinc-50">
-              <code>{`POST https://trackpay.mr/api/payments/create/
+              <code>{`POST ${paymentEndpoint}
 Headers: { "X-API-Key": "sk_live_xxx" }
 Body:
 {
@@ -67,7 +74,7 @@ Body:
 }
 Response:
 {
-  "payment_url": "https://trackpay.mr/pay/xxx"
+  "payment_url": "${paymentPageExample}"
 }`}</code>
             </pre>
           </section>
@@ -115,7 +122,7 @@ Response:
             </Button>
           </div>
           <pre className="overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm text-zinc-50">
-            <code>{language === "python" ? pythonExample : jsExample}</code>
+            <code>{selectedExample}</code>
           </pre>
         </CardContent>
       </Card>

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { PageState } from "@/components/partner-portal/page-state"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getPartnerKey, PARTNER_API_BASE_URL, partnerRequest } from "@/lib/partner-portal/api"
+import { getPartnerKey, getPartnerPaymentEndpoint, partnerRequest } from "@/lib/partner-portal/api"
 import { PartnerCredentials } from "@/lib/partner-portal/types"
 
 export default function PartnerCredentialsPage() {
@@ -54,9 +54,7 @@ export default function PartnerCredentialsPage() {
   if (error || !credentials) return <PageState title="Impossible de charger les identifiants" onRetry={load} />
 
   const endpoint =
-    credentials.gateway_endpoint ??
-    credentials.payment_endpoint ??
-    `${PARTNER_API_BASE_URL}/api/payments/create/`
+    getPartnerPaymentEndpoint(credentials.gateway_endpoint ?? credentials.payment_endpoint)
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">

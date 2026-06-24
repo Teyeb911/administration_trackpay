@@ -26,6 +26,24 @@ export function getPartnerApiBaseUrl() {
   )
 }
 
+export function getPartnerPaymentEndpoint(endpoint?: string) {
+  if (!endpoint) {
+    return `${PARTNER_API_BASE_URL}/api/payments/create/`
+  }
+
+  try {
+    const url = new URL(endpoint)
+
+    if (url.hostname === "trackpay.mr" && PARTNER_API_BASE_URL !== url.origin) {
+      return `${PARTNER_API_BASE_URL}${url.pathname}`
+    }
+  } catch {
+    return `${PARTNER_API_BASE_URL}/api/payments/create/`
+  }
+
+  return endpoint
+}
+
 type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE"
   body?: unknown
